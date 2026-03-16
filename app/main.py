@@ -2,7 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, engine
 from routers import heroes, auth
-# Crear tablas automáticamente
+
+from slowapi.middleware import SlowAPIMiddleware
+from slowapi.errors import RateLimitExceeded
+from slowapi import _rate_limit_exceeded_handler
+from app.core.limiter import limiter
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -11,6 +16,9 @@ app = FastAPI(
     version="1.0.1"
 )
 
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
@@ -20,11 +28,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Registrar routers
 app.include_router(heroes.router)
 app.include_router(auth.router)
-
-
-@app.get("/")
-def root():
-    return {"message": "Marvel Heroes API running"}

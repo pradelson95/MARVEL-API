@@ -3,28 +3,30 @@ const API = "http://localhost:8000"
 let token = null
 
 
-
 // ============================
 // TOAST
 // ============================
 
-function showToast(message,type="error"){
+function showToast(message, type = "error") {
 
-const toast=document.getElementById("toast")
+const toast = document.getElementById("toast")
 
-toast.textContent=message
-
+toast.textContent = message
 toast.classList.remove("hidden")
 
-if(type==="error"){
-toast.className="fixed top-6 right-6 bg-red-600 px-6 py-3 rounded-lg shadow-lg text-white"
-}else{
-toast.className="fixed top-6 right-6 bg-green-600 px-6 py-3 rounded-lg shadow-lg text-white"
+if (type === "error") {
+
+toast.className = "fixed top-6 right-6 bg-red-600 px-6 py-3 rounded-lg shadow-lg text-white"
+
+} else {
+
+toast.className = "fixed top-6 right-6 bg-green-600 px-6 py-3 rounded-lg shadow-lg text-white"
+
 }
 
-setTimeout(()=>{
+setTimeout(() => {
 toast.classList.add("hidden")
-},3000)
+}, 3000)
 
 }
 
@@ -34,56 +36,86 @@ toast.classList.add("hidden")
 // LOGIN
 // ============================
 
-async function login(){
+async function login() {
 
-const btn=document.getElementById("login-btn")
-const spinner=document.getElementById("login-spinner")
-const text=document.getElementById("login-text")
+const btn = document.getElementById("login-btn")
+const spinner = document.getElementById("login-spinner")
+const text = document.getElementById("login-text")
 
-const username=document.getElementById("username").value
-const password=document.getElementById("password").value
+const username = document.getElementById("username").value
+const password = document.getElementById("password").value
 
-// activar loader
+
 spinner.classList.remove("hidden")
-text.textContent="Validando..."
-btn.disabled=true
+text.textContent = "Validando..."
+btn.disabled = true
 
-try{
 
-const res=await fetch(API+"/auth/login",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
+try {
+
+const res = await fetch(API + "/auth/login", {
+
+method: "POST",
+
+headers: {
+"Content-Type": "application/json"
 },
-body:JSON.stringify({username,password})
+
+body: JSON.stringify({ username, password })
+
 })
 
-if(res.status===401){
+if (!res.ok) {
 
+if (res.status === 401) {
 showToast("Credenciales incorrectas")
-
-spinner.classList.add("hidden")
-text.textContent="Login"
-btn.disabled=false
-
-return
 }
 
-const data=await res.json()
+else if (res.status === 429) {
+showToast("Demasiados intentos. Intenta en 1 minuto.")
+}
 
-token=data.access_token
+else {
+showToast("Error en login")
+}
 
-showToast("Login exitoso","success")
+spinner.classList.add("hidden")
+text.textContent = "Login"
+btn.disabled = false
+
+return
+
+}
+
+const data = await res.json()
+
+token = data.access_token
+
+if (!token) {
+
+showToast("Error de autenticación")
+
+spinner.classList.add("hidden")
+text.textContent = "Login"
+btn.disabled = false
+
+return
+
+}
+
+showToast("Login exitoso", "success")
 
 initApp()
 
-}catch{
+}
+
+catch {
 
 showToast("Error de conexión")
 
 spinner.classList.add("hidden")
-text.textContent="Login"
-btn.disabled=false
+text.textContent = "Login"
+btn.disabled = false
 
 }
 
@@ -95,16 +127,18 @@ btn.disabled=false
 // JWT
 // ============================
 
-function parseJwt(token){
+function parseJwt(token) {
 
-try{
+try {
 
-const base64=token.split('.')[1]
-const json=atob(base64)
+const base64 = token.split('.')[1]
+const json = atob(base64)
 
 return JSON.parse(json)
 
-}catch{
+}
+
+catch {
 
 return null
 
@@ -118,15 +152,15 @@ return null
 // INIT APP
 // ============================
 
-function initApp(){
+function initApp() {
 
-document.getElementById("login-section").style.display="none"
+document.getElementById("login-section").style.display = "none"
 
 document.getElementById("app").classList.remove("hidden")
 
-const payload=parseJwt(token)
+const payload = parseJwt(token)
 
-if(payload && payload.role==="admin"){
+if (payload && payload.role === "admin") {
 
 document
 .getElementById("admin-panel")
@@ -144,37 +178,37 @@ loadHeroes()
 // CREATE HERO
 // ============================
 
-async function createHero(){
+async function createHero() {
 
-const hero={
+const hero = {
 
-name:document.getElementById("name").value,
-real_name:document.getElementById("real_name").value,
-team:document.getElementById("team").value,
-power_level:Number(document.getElementById("power_level").value),
-image_url:document.getElementById("image_url").value
+name: document.getElementById("name").value,
+real_name: document.getElementById("real_name").value,
+team: document.getElementById("team").value,
+power_level: Number(document.getElementById("power_level").value),
+image_url: document.getElementById("image_url").value
 
 }
 
-const res=await fetch(API+"/heroes",{
+const res = await fetch(API + "/heroes", {
 
-method:"POST",
+method: "POST",
 
-headers:{
-"Content-Type":"application/json",
-"Authorization":"Bearer "+token
+headers: {
+"Content-Type": "application/json",
+"Authorization": "Bearer " + token
 },
 
-body:JSON.stringify(hero)
+body: JSON.stringify(hero)
 
 })
 
-if(!res.ok){
+if (!res.ok) {
 showToast("Error creando héroe")
 return
 }
 
-showToast("Héroe creado","success")
+showToast("Héroe creado", "success")
 
 clearForm()
 
@@ -188,13 +222,13 @@ loadHeroes()
 // CLEAR FORM
 // ============================
 
-function clearForm(){
+function clearForm() {
 
-document.getElementById("name").value=""
-document.getElementById("real_name").value=""
-document.getElementById("team").value=""
-document.getElementById("power_level").value=""
-document.getElementById("image_url").value=""
+document.getElementById("name").value = ""
+document.getElementById("real_name").value = ""
+document.getElementById("team").value = ""
+document.getElementById("power_level").value = ""
+document.getElementById("image_url").value = ""
 
 }
 
@@ -204,19 +238,19 @@ document.getElementById("image_url").value=""
 // LOAD HEROES
 // ============================
 
-async function loadHeroes(){
+async function loadHeroes() {
 
-const res=await fetch(API+"/heroes")
+const res = await fetch(API + "/heroes")
 
-const heroes=await res.json()
+const heroes = await res.json()
 
-const container=document.getElementById("heroes-container")
+const container = document.getElementById("heroes-container")
 
-container.innerHTML=""
+container.innerHTML = ""
 
-heroes.forEach(hero=>{
+heroes.forEach(hero => {
 
-container.innerHTML+=`
+container.innerHTML += `
 
 <div class="hero-card fade-in bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
 
@@ -253,20 +287,20 @@ ${hero.team}
 // SEARCH
 // ============================
 
-document.addEventListener("input",(e)=>{
+document.addEventListener("input", (e) => {
 
-if(e.target.id==="search"){
+if (e.target.id === "search") {
 
-const value=e.target.value.toLowerCase()
+const value = e.target.value.toLowerCase()
 
-const cards=document.querySelectorAll(".hero-card")
+const cards = document.querySelectorAll(".hero-card")
 
-cards.forEach(card=>{
+cards.forEach(card => {
 
-if(card.innerText.toLowerCase().includes(value)){
-card.style.display="block"
-}else{
-card.style.display="none"
+if (card.innerText.toLowerCase().includes(value)) {
+card.style.display = "block"
+} else {
+card.style.display = "none"
 }
 
 })
@@ -274,7 +308,6 @@ card.style.display="none"
 }
 
 })
-
 
 
 // ocultar app al iniciar

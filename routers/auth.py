@@ -1,16 +1,26 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from app.database import get_db
 from models.user import User
 from schemas.user_schema import UserCreate, UserLogin
 from security.auth_handler import hash_password, verify_password, create_token
-
+from app.core.limiter import limiter
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
+# ============================
+# REGISTER
+# ============================
+
 @router.post("/register")
-def register(user: UserCreate, db: Session = Depends(get_db)):
+@limiter.limit("2/minute")
+def register(request: Request, user: UserCreate, db: Session = Depends(get_db)):
+
+    existing_user = db.query(User).filter(User.username == user.username).first()
+
+    if existing_user:
+        raise HTTPException(status_code=400, detail="User already exists")
 
     new_user = User(
         username=user.username,
@@ -24,8 +34,13 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     return {"message": f"User {new_user.username} created"}
 
 
+# ============================
+# LOGIN
+# ============================
+
 @router.post("/login")
-def login(user: UserLogin, db: Session = Depends(get_db)):
+@limiter.limit("3/minute")
+def login(request: Request, user: UserLogin, db: Session = Depends(get_db)):
 
     db_user = db.query(User).filter(User.username == user.username).first()
 
@@ -37,4 +52,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
     token = create_token(db_user.username, db_user.role)
 
-    return {"access_token": token}
+    return {
+        "access_token": token,
+        "token_type": "bearer"
+    }
