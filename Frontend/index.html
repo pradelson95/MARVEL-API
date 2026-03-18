@@ -1,15 +1,14 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="pt">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Marvel Heroes</title>
+<title>Heróis Marvel</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-
 body{
 background: radial-gradient(circle at top,#111827,#020617);
 }
@@ -31,20 +30,27 @@ animation:fade .6s ease;
 from{opacity:0; transform:translateY(20px)}
 to{opacity:1; transform:translateY(0)}
 }
-
 </style>
 </head>
 
 <body class="text-white min-h-screen">
 
-<header class="text-center py-10">
+<header class="text-center py-10 relative">
+
+<button 
+id="logout-btn"
+onclick="logout()" 
+class="hidden absolute top-6 right-6 bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded text-sm"
+>
+Sair
+</button>
 
 <h1 class="text-4xl font-bold tracking-widest text-red-500">
-MARVEL HEROES
+HERÓIS MARVEL
 </h1>
 
 <p class="text-gray-400 mt-2">
-Marvel API Explorer
+Explorador da API Marvel
 </p>
 
 </header>
@@ -56,20 +62,20 @@ Marvel API Explorer
 <div class="bg-gray-900 border border-gray-700 p-6 rounded-lg">
 
 <h2 class="text-xl mb-4 text-center text-red-500">
-Admin Login
+Login do Administrador
 </h2>
 
 <input
 id="username"
 type="text"
-placeholder="Usuario"
+placeholder="Usuário"
 class="w-full p-3 mb-3 rounded bg-gray-800 border border-gray-700"
 />
 
 <input
 id="password"
 type="password"
-placeholder="Password"
+placeholder="Senha"
 class="w-full p-3 mb-3 rounded bg-gray-800 border border-gray-700"
 />
 
@@ -79,7 +85,7 @@ onclick="login()"
 class="w-full bg-red-600 hover:bg-red-700 p-3 rounded font-bold flex items-center justify-center gap-2"
 >
 
-<span id="login-text">Login</span>
+<span id="login-text">Entrar</span>
 
 <svg id="login-spinner"
 class="hidden animate-spin h-5 w-5 text-white"
@@ -120,29 +126,56 @@ d="M4 12a8 8 0 018-8v4l3-3-3-3v4a10 10 0 00-10 10h4z">
 <div class="bg-gray-900 border border-gray-700 p-6 rounded-lg">
 
 <h2 class="text-2xl text-red-500 mb-4">
-Crear nuevo héroe
+Criar novo herói
 </h2>
 
-<input id="name" placeholder="Hero name"
+<input id="name" placeholder="Nome do herói"
 class="w-full p-3 mb-2 bg-gray-800 border border-gray-700 rounded"/>
 
-<input id="real_name" placeholder="Real name"
+<input id="real_name" placeholder="Nome real"
 class="w-full p-3 mb-2 bg-gray-800 border border-gray-700 rounded"/>
 
-<input id="team" placeholder="Team"
+<input id="team" placeholder="Equipe"
 class="w-full p-3 mb-2 bg-gray-800 border border-gray-700 rounded"/>
 
-<input id="power_level" placeholder="Power level"
+<input id="power_level" placeholder="Nível de poder"
 class="w-full p-3 mb-2 bg-gray-800 border border-gray-700 rounded"/>
 
-<input id="image_url" placeholder="Image URL"
+<input id="image_url" placeholder="URL da imagem"
 class="w-full p-3 mb-4 bg-gray-800 border border-gray-700 rounded"/>
 
 <button
 onclick="createHero()"
 class="bg-green-600 hover:bg-green-700 p-3 rounded w-full font-bold"
 >
-Crear héroe
+Criar herói
+</button>
+
+<hr class="my-8 border-gray-700">
+
+<h2 class="text-2xl text-blue-400 mb-4">
+Criar novo usuário
+</h2>
+
+<input id="new_username" placeholder="Usuário"
+class="w-full p-3 mb-2 bg-gray-800 border border-gray-700 rounded"/>
+
+<input id="new_password" type="password" placeholder="Senha"
+class="w-full p-3 mb-2 bg-gray-800 border border-gray-700 rounded"/>
+
+<select id="new_role"
+class="w-full p-3 mb-4 bg-gray-800 border border-gray-700 rounded">
+
+<option value="user">Usuário</option>
+<option value="admin">Administrador</option>
+
+</select>
+
+<button
+onclick="createUser()"
+class="bg-blue-600 hover:bg-blue-700 p-3 rounded w-full font-bold"
+>
+Criar usuário
 </button>
 
 </div>
@@ -156,7 +189,7 @@ Crear héroe
 <input
 id="search"
 type="text"
-placeholder="Buscar héroe o nombre real..."
+placeholder="Buscar herói ou nome real..."
 class="w-full p-4 rounded-lg bg-gray-900 border border-gray-700"
 />
 

@@ -68,19 +68,19 @@ body: JSON.stringify({ username, password })
 if (!res.ok) {
 
 if (res.status === 401) {
-showToast("Credenciales incorrectas")
+showToast("Credenciais incorretas")
 }
 
 else if (res.status === 429) {
-showToast("Demasiados intentos. Intenta en 1 minuto.")
+showToast("Muitas tentativas. Tente novamente em 1 minuto.")
 }
 
 else {
-showToast("Error en login")
+showToast("Erro no login")
 }
 
 spinner.classList.add("hidden")
-text.textContent = "Login"
+text.textContent = "Entrar"
 btn.disabled = false
 
 return
@@ -93,17 +93,17 @@ token = data.access_token
 
 if (!token) {
 
-showToast("Error de autenticación")
+showToast("Erro de autenticação")
 
 spinner.classList.add("hidden")
-text.textContent = "Login"
+text.textContent = "Entrar"
 btn.disabled = false
 
 return
 
 }
 
-showToast("Login exitoso", "success")
+showToast("Login realizado com sucesso", "success")
 
 initApp()
 
@@ -111,10 +111,10 @@ initApp()
 
 catch {
 
-showToast("Error de conexión")
+showToast("Erro de conexão")
 
 spinner.classList.add("hidden")
-text.textContent = "Login"
+text.textContent = "Entrar"
 btn.disabled = false
 
 }
@@ -155,23 +155,19 @@ return null
 function initApp() {
 
 document.getElementById("login-section").style.display = "none"
-
 document.getElementById("app").classList.remove("hidden")
+
+// mostrar logout
+document.getElementById("logout-btn").classList.remove("hidden")
 
 const payload = parseJwt(token)
 
 if (payload && payload.role === "admin") {
-
-document
-.getElementById("admin-panel")
-.classList.remove("hidden")
-
+document.getElementById("admin-panel").classList.remove("hidden")
 }
 
 loadHeroes()
-
 }
-
 
 
 // ============================
@@ -204,11 +200,11 @@ body: JSON.stringify(hero)
 })
 
 if (!res.ok) {
-showToast("Error creando héroe")
+showToast("Erro ao criar herói")
 return
 }
 
-showToast("Héroe creado", "success")
+showToast("Herói criado com sucesso", "success")
 
 clearForm()
 
@@ -310,5 +306,90 @@ card.style.display = "none"
 })
 
 
-// ocultar app al iniciar
+// ocultar app y logout al iniciar
 document.getElementById("app").classList.add("hidden")
+document.getElementById("logout-btn").classList.add("hidden")
+
+
+
+// ============================
+// CREATE USER
+// ============================
+
+async function createUser() {
+
+const user = {
+    username: document.getElementById("new_username").value,
+    password: document.getElementById("new_password").value,
+    role: document.getElementById("new_role").value
+}
+
+try {
+
+const res = await fetch(API + "/users/", {
+
+method: "POST",
+
+headers: {
+"Content-Type": "application/json",
+"Authorization": "Bearer " + token
+},
+
+body: JSON.stringify(user)
+
+})
+
+if (!res.ok) {
+
+if (res.status === 403) {
+showToast("Apenas administradores podem criar usuários")
+}
+else {
+showToast("Erro ao criar usuário")
+}
+
+return
+}
+
+showToast("Usuário criado com sucesso", "success")
+
+document.getElementById("new_username").value = ""
+document.getElementById("new_password").value = ""
+document.getElementById("new_role").value = "user"
+
+} catch {
+
+showToast("Erro de conexão")
+
+}
+
+}
+
+
+// ============================
+// LOGOUT
+// ============================
+
+function logout() {
+
+token = null
+
+document.getElementById("login-section").style.display = "block"
+document.getElementById("app").classList.add("hidden")
+document.getElementById("admin-panel").classList.add("hidden")
+
+document.getElementById("logout-btn").classList.add("hidden")
+
+document.getElementById("username").value = ""
+document.getElementById("password").value = ""
+
+const btn = document.getElementById("login-btn")
+const spinner = document.getElementById("login-spinner")
+const text = document.getElementById("login-text")
+
+spinner.classList.add("hidden")
+text.textContent = "Entrar"
+btn.disabled = false
+
+showToast("Sessão encerrada", "success")
+}
